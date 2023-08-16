@@ -6,8 +6,13 @@ if(php_sapi_name() !== 'cli') {
 }
 
 $root_app = dirname(__DIR__);
-if (!is_file($root_app . '/vendor/autoload.php')) {
-    $root_app = dirname(__DIR__, 4);
+$depth = 4;
+while(!is_file($root_app . '/vendor/autoload.php') && $depth > 0){
+    $root_app = dirname(__DIR__, $depth);
+    $depth--;
+}
+if(!is_file($root_app . '/vendor/autoload.php')){
+    throw new \Exception('Unable to find autoload.php');
 }
 require $root_app . '/vendor/autoload.php';
 
