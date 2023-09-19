@@ -16,6 +16,9 @@
         "Magento 2",
         "Magento"
     ],
+    "support": {
+        "source": "https://github.com/zero1limited/magento2-developer-utils.git"
+    },
     "suggest": {
         "mdoq/module-connector": "Improves DevOps for Magento2"
     },
