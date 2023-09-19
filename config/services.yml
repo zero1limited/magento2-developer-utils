@@ -1,0 +1,12 @@
+# config/services.yml
+services:
+    _defaults:
+        autowire: true
+
+    Zero1\MagentoDev\:
+        resource: '../src'
+
+    Symfony\Component\Console\Application:
+        # why public? so we can get it from container in bin file
+        # via "$container->get(Application::class)"
+        public: true

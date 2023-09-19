@@ -16,37 +16,16 @@ if(!is_file($root_app . '/vendor/autoload.php')){
 }
 require $root_app . '/vendor/autoload.php';
 
-use Minicli\App;
-use Minicli\Exception\CommandNotFoundException;
+$kernel = new \Zero1\MagentoDev\Kernel('dev', true);
+$kernel->boot();
 
-$app = new App([
-    'app_path' => [
-        '@zero1/magento-dev/src'
-    ],
-    'theme' => '\Unicorn', 
-    'debug' => true,
-], './vendor/bin/magento-dev help');
-
-try {
-    $app->runCommand($argv);
-} catch (CommandNotFoundException $notFoundException) {
-    $app->getPrinter()->error("Command Not Found.");
-    return 1;
-} catch (Exception $exception) {
-    if ($app->config->debug) {
-        $app->getPrinter()->error("An error occurred:");
-        $app->getPrinter()->error($exception->getMessage());
-    }
-    return 1;
-}
-
-return 0;
+$container = $kernel->getContainer();
+$application = $container->get(\Symfony\Component\Console\Application::class);
+$application->run();
 
 
-$app->registerCommand('test', function () use ($app) {
-    $app->getPrinter()->success('Hello World!' , false);
-    $app->getPrinter()->info('With Background!' , true);
-    $app->getPrinter()->error('Quitting!', false);
-});
+$application = new Application();
 
-$app->runCommand($argv);
+$application->add(new \Zero1\MagentoDev\Command\Module\WorkOn());
+
+$application->run();

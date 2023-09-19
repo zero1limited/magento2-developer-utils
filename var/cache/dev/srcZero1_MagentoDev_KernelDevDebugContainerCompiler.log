@@ -1,0 +1,6 @@
+Symfony\Component\DependencyInjection\Compiler\RemovePrivateAliasesPass: Removed service "Psr\Container\ContainerInterface"; reason: private alias.
+Symfony\Component\DependencyInjection\Compiler\RemovePrivateAliasesPass: Removed service "Symfony\Component\DependencyInjection\ContainerInterface"; reason: private alias.
+Symfony\Component\DependencyInjection\Compiler\RemoveUnusedDefinitionsPass: Removed service "Zero1\MagentoDev\DependencyInjection\CompilerPass\CommandsToApplicationCompilerPass"; reason: unused.
+Symfony\Component\DependencyInjection\Compiler\RemoveUnusedDefinitionsPass: Removed service "Zero1\MagentoDev\Kernel"; reason: unused.
+Symfony\Component\DependencyInjection\Compiler\InlineServiceDefinitionsPass: Inlined service "Zero1\MagentoDev\Service\ModuleList" to "Zero1\MagentoDev\Command\Module\WorkOn".
+Symfony\Component\DependencyInjection\Compiler\InlineServiceDefinitionsPass: Inlined service "Zero1\MagentoDev\Command\Module\WorkOn" to "Symfony\Component\Console\Application".
