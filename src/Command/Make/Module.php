@@ -2,6 +2,8 @@
 
 namespace Zero1\MagentoDev\Command\Make;
 
+use Mustache_Engine;
+use Mustache_Loader_FilesystemLoader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,6 +43,7 @@ class Module extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
+        $context = [];
 
         $moduleName = $input->getOption('name');
         if(!$moduleName){
@@ -51,6 +54,10 @@ class Module extends Command
             $output->writeln('You need to specify a Magento module name');
             return 1;
         }
+        $context['magento_module_name'] = $moduleName;
+        list($magentoModuleCompanyName, $magentoModulePackageName) = explode('_', $moduleName, 2);
+        $context['magento_module_company_name'] = $magentoModuleCompanyName;
+        $context['magento_module_package_name'] = $magentoModulePackageName;
 
         $composerPackage = $input->getOption('composer-package-name');
         if(!$composerPackage){
@@ -67,6 +74,8 @@ class Module extends Command
             }
         }
         echo 'composer package nane: '.$composerPackage.PHP_EOL;
+        $context['composer_package_name'] = $composerPackage;
+        $context['composer_psr4'] = '\\\\'.$magentoModuleCompanyName.'\\\\'.$magentoModulePackageName.'\\\\';
         
         $directory = $input->getOption('directory');
         if(!$directory){
@@ -95,6 +104,33 @@ class Module extends Command
         }
         echo 'directory: '.json_encode($directory).PHP_EOL;
 
+
+        // actually install the module
+        if(!is_dir($directory)){
+            echo 'making directory'.PHP_EOL;
+            mkdir($directory, 0777, true);
+        }else{
+            echo 'dir already exists, TODO add a force option (replace or overwrite)'.PHP_EOL;
+            die;
+        }
+
+        $mustache = $this->getMustacheEngine();
+        foreach([
+            'composer.json',
+            '.gitignore',
+            'README.md',
+            'registration.php',
+            'etc/module.xml'
+        ] as $file){
+            $filepath = $directory.'/'.$file;
+            if(!is_dir(dirname($filepath))){
+                mkdir(dirname($filepath), 0777, true);
+            }
+            echo 'writing '.$filepath.PHP_EOL;
+            file_put_contents($filepath, $mustache->render($file, $context));
+        }
+
+
         // return this if there was no problem running the command
         return 0;
 
@@ -118,5 +154,18 @@ class Module extends Command
     protected function getAppCodeDirectory($magentoModuleName)
     {
         return 'app/code/'.str_replace('_', '/', $magentoModuleName);
+    }
+
+    /**
+     * TODO - move this
+     *
+     * @return Mustache_Engine
+     */
+    protected function getMustacheEngine()
+    {
+        $m = new Mustache_Engine(array(
+            'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__) . '/../../../var/templates'),
+        ));
+        return $m;
     }
 }
