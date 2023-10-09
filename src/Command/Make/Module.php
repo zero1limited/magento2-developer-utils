@@ -75,7 +75,7 @@ class Module extends Command
         }
         echo 'composer package nane: '.$composerPackage.PHP_EOL;
         $context['composer_package_name'] = $composerPackage;
-        $context['composer_psr4'] = '\\\\'.$magentoModuleCompanyName.'\\\\'.$magentoModulePackageName.'\\\\';
+        $context['composer_psr4'] = $magentoModuleCompanyName.'\\\\'.$magentoModulePackageName.'\\\\';
         
         $directory = $input->getOption('directory');
         if(!$directory){
