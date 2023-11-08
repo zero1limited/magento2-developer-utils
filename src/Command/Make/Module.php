@@ -12,13 +12,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Zero1\MagentoDev\Service\Composer as ComposerService;
 
 class Module extends Command
 {
     protected static $defaultName = 'make:module';
 
+    /** @var ComposerService */
+    protected $composerService;
+
     public function __construct(
+        ComposerService $composerService
     ) {
+        $this->composerService = $composerService;
         parent::__construct();
     }
 
@@ -80,35 +86,39 @@ class Module extends Command
         $directory = $input->getOption('directory');
         if(!$directory){
             $directories = [
-                $this->getExtensionsDirectory($composerPackage),
-                $this->getAppCodeDirectory($moduleName),
-                'custom',
+                'extensions' => $this->getExtensionsDirectory($composerPackage),
+                'app' => $this->getAppCodeDirectory($moduleName),
+                'custom' => 'Custom',
             ];
 
             $question = new ChoiceQuestion(
-                'Directory (defaults to 0): ',
+                'Directory (default: extensions): ',
                 $directories,
-                0
+                'extensions'
             );
             $question->setErrorMessage('Option %s is invalid.');
 
             $directory = $helper->ask($input, $output, $question);
             if($directory === 'custom'){
                 $question = new Question('Please enter the directory path (path/to/my-company/my-module): ', null);
-                $directory = trim($helper->ask($input, $output, $question));
+                $directoryPath = trim($helper->ask($input, $output, $question));
                 if(!$directory){
                     $output->writeln('You need to specify a path to the module');
                     return 1;
                 }
+            }elseif($directory == 'extensions'){
+                $directoryPath = $this->getExtensionsDirectory($composerPackage);
+            }else{
+                $directoryPath = $this->getAppCodeDirectory($moduleName);
             }
         }
         echo 'directory: '.json_encode($directory).PHP_EOL;
-
+        echo 'directory path: '.$directoryPath.PHP_EOL;
 
         // actually install the module
-        if(!is_dir($directory)){
+        if(!is_dir($directoryPath)){
             echo 'making directory'.PHP_EOL;
-            mkdir($directory, 0777, true);
+            mkdir($directoryPath, 0777, true);
         }else{
             echo 'dir already exists, TODO add a force option (replace or overwrite)'.PHP_EOL;
             die;
@@ -122,12 +132,24 @@ class Module extends Command
             'registration.php',
             'etc/module.xml'
         ] as $file){
-            $filepath = $directory.'/'.$file;
+            $filepath = $directoryPath.'/'.$file;
             if(!is_dir(dirname($filepath))){
                 mkdir(dirname($filepath), 0777, true);
             }
             echo 'writing '.$filepath.PHP_EOL;
             file_put_contents($filepath, $mustache->render($file, $context));
+        }
+
+        if($directory == 'extensions' || $directory == 'custom'){
+            $this->composerService->addRepository($composerPackage, [
+                'type' => 'path', 
+                'url' => $directoryPath,
+                'options' => [
+                    'symlink' => true,
+                ]
+            ]);
+
+            $output->writeLn('<info>composer require '.$composerPackage.':@dev</info>');
         }
 
 
