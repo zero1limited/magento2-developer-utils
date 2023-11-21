@@ -15,6 +15,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Zero1\MagentoDev\Service\Composer as ComposerService;
 use Zero1\MagentoDev\Service\Git as GitService;
 use Symfony\Component\Filesystem\Filesystem;
+use mikehaertl\shellcommand\Command as ShellCommand;
 
 class Module extends Command
 {
@@ -176,6 +177,8 @@ class Module extends Command
             ]);
 
             $output->writeLn('<info>composer require '.$composerPackage.':@dev</info>');
+            $command = new ShellCommand('composer require '.$composerPackage.':@dev');
+            echo $command->getOutput().PHP_EOL;
         }
 
 
