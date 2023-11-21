@@ -13,6 +13,8 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Zero1\MagentoDev\Service\Composer as ComposerService;
+use Zero1\MagentoDev\Service\Git as GitService;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Module extends Command
 {
@@ -21,10 +23,19 @@ class Module extends Command
     /** @var ComposerService */
     protected $composerService;
 
+    /** @var GitService */
+    protected $gitService;
+
+    /** @var Filesystem */
+    protected $filesystem;
+
     public function __construct(
-        ComposerService $composerService
+        ComposerService $composerService,
+        GitService $gitService
     ) {
         $this->composerService = $composerService;
+        $this->gitService = $gitService;
+        $this->filesystem = new Filesystem();
         parent::__construct();
     }
 
@@ -41,7 +52,7 @@ class Module extends Command
         $this->addOption('name', null, InputOption::VALUE_REQUIRED, 'name of the module (Magento module name, MyCompany_MyModule)');
         $this->addOption('composer-package-name', null, InputOption::VALUE_OPTIONAL, 'composer-package-name', null);
         $this->addOption('directory', null, InputOption::VALUE_OPTIONAL, 'directory', null);
-
+        $this->addOption('repository', null, InputOption::VALUE_OPTIONAL, 'Source control repo location eg git@github.com:org/repo.git. If supplied, the new module will be pushed to the repo and added as a submodule to the current project.', null);
 
 
     }
@@ -79,7 +90,7 @@ class Module extends Command
                 }
             }
         }
-        echo 'composer package nane: '.$composerPackage.PHP_EOL;
+        // echo 'composer package nane: '.$composerPackage.PHP_EOL;
         $context['composer_package_name'] = $composerPackage;
         $context['composer_psr4'] = $magentoModuleCompanyName.'\\\\'.$magentoModulePackageName.'\\\\';
         
@@ -112,13 +123,12 @@ class Module extends Command
                 $directoryPath = $this->getAppCodeDirectory($moduleName);
             }
         }
-        echo 'directory: '.json_encode($directory).PHP_EOL;
-        echo 'directory path: '.$directoryPath.PHP_EOL;
+        // echo 'directory: '.json_encode($directory).PHP_EOL;
+        // echo 'directory path: '.$directoryPath.PHP_EOL;
 
         // actually install the module
-        if(!is_dir($directoryPath)){
-            echo 'making directory'.PHP_EOL;
-            mkdir($directoryPath, 0777, true);
+        if(!$this->filesystem->exists($directoryPath)){
+            $this->filesystem->mkdir($directoryPath, 0777);
         }else{
             echo 'dir already exists, TODO add a force option (replace or overwrite)'.PHP_EOL;
             die;
@@ -133,14 +143,30 @@ class Module extends Command
             'etc/module.xml'
         ] as $file){
             $filepath = $directoryPath.'/'.$file;
-            if(!is_dir(dirname($filepath))){
-                mkdir(dirname($filepath), 0777, true);
+            if(!$this->filesystem->exists(dirname($filepath))){
+                $this->filesystem->mkdir(dirname($filepath), 0777);
             }
-            echo 'writing '.$filepath.PHP_EOL;
-            file_put_contents($filepath, $mustache->render($file, $context));
+            
+            $this->filesystem->dumpFile($filepath, $mustache->render($file, $context));
         }
 
         if($directory == 'extensions' || $directory == 'custom'){
+
+            $repo = $input->getOption('repository');
+            if(!$repo){
+                if($helper->ask($input, $output, new ConfirmationQuestion('Would you like to initialize source control?', false))){
+                    $repo = trim($helper->ask($input, $output, new Question('Please enter the repository url (git@github.com:org/repo.git): ', null)));
+                }
+            }
+
+            if($repo){
+                $this->gitService->initializeRepository($directoryPath, $repo);
+
+                $this->filesystem->remove($directoryPath);
+
+                $this->gitService->addSubmodule($repo, $directoryPath, $moduleName);
+            }
+
             $this->composerService->addRepository($composerPackage, [
                 'type' => 'path', 
                 'url' => $directoryPath,
