@@ -53,7 +53,7 @@ class ZipDownloader extends ComposerZipDownloader
     public function getLocalChanges(
         PackageInterface $package, 
         $targetDir
-    ){
+    ): ?string {
         $prevIO = $this->io;
 
         $this->io = new NullIO;
