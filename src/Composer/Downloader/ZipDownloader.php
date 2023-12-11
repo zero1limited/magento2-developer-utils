@@ -80,7 +80,7 @@ class ZipDownloader extends ComposerZipDownloader
             $comparer->setSource($targetDir.'_compare');
             $comparer->setUpdate($targetDir);
             $comparer->doCompare();
-            $output = $comparer->getChanged(true, true);
+            $output = $comparer->getChangedAsString(true);
             $this->filesystem->removeDirectory($targetDir.'_compare');
         } catch (\Exception $e) {
         }
