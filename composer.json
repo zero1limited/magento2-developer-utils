@@ -9,7 +9,11 @@
         "symfony/yaml": "*",
         "mustache/mustache": "*",
         "symfony/filesystem": "^2.8.52 || ^3.4.35 || ^4.4 || ^5.0 || ^6.0",
-        "mikehaertl/php-shellcommand": "^1.7"
+        "mikehaertl/php-shellcommand": "^1.7",
+        "saloonphp/xml-wrangler": "^1.2",
+        "league/flysystem": "~2.4.5",
+        "galbar/jsonpath": "^3.0 || ^2.0",
+        "composer/composer": "^2.0"
     },
     "autoload": {
         "psr-4": {
