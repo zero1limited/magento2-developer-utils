@@ -1,0 +1,82 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Magento\Framework\Exception\LocalizedException;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
+
+/**
+ * @see https://developer.adobe.com/commerce/php/development/cli-commands/custom/
+ */ 
+class {{ command-class-name }} extends Command
+{
+    private const INPUT_OPTION_NAME = 'name';
+
+    private const INPUT_ARGUMENT_DRY_RUN = 'dry-run';
+
+    protected function configure(): void
+    {
+        $this->setName('{{ command-signature }}');
+        $this->setDescription('{{ command-help }}');
+        // --name=somevalue
+        $this->addOption(
+            self::INPUT_OPTION_NAME,
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Name'
+        );
+        // --dry-run
+        $this->addArgument(
+            self::INPUT_ARGUMENT_DRY_RUN,
+            InputArgument::OPTIONAL,
+            'Dry Run'
+        );
+
+        parent::configure();
+    }
+
+    /**
+     * Execute the command
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return int
+     */
+     protected function execute(InputInterface $input, OutputInterface $output): int
+     {
+         $exitCode = 0;
+         
+         if ($name = $input->getOption(self::INPUT_OPTION_NAME)) {
+             $output->writeln('<info>Provided name is `' . $name . '`</info>');
+         }
+
+         $isDryRun = (bool)$input->getArgument(self::INPUT_ARGUMENT_DRY_RUN);
+         if($isDryRun){
+             $output->writeln('running in dry-run mode');
+         }
+
+         $output->writeln('<info>Success message.</info>');
+         $output->writeln('<comment>Some comment.</comment>');
+
+         try {
+             if (rand(0, 1)) {
+                throw new LocalizedException(__('An error occurred.'));
+             }
+         } catch (LocalizedException $e) {
+             $output->writeln(sprintf(
+                 '<error>%s</error>',
+                 $e->getMessage()
+             ));
+             $exitCode = 1;
+         }
+         
+         return $exitCode;
+     }
+}

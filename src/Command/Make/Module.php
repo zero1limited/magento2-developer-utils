@@ -16,6 +16,7 @@ use Zero1\MagentoDev\Service\Composer as ComposerService;
 use Zero1\MagentoDev\Service\Git as GitService;
 use Symfony\Component\Filesystem\Filesystem;
 use mikehaertl\shellcommand\Command as ShellCommand;
+use Zero1\MagentoDev\Service\Git\UnconfiguredException;
 
 class Module extends Command
 {
@@ -60,6 +61,8 @@ class Module extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->gitService->setOutput($output);
+        
         $helper = $this->getHelper('question');
         $context = [];
 
@@ -161,7 +164,15 @@ class Module extends Command
             }
 
             if($repo){
-                $this->gitService->initializeRepository($directoryPath, $repo);
+                try{
+                    $this->gitService->initializeRepository($directoryPath, $repo);
+                }catch(UnconfiguredException $e){
+                    $output->writeln($e->getMessage());
+                    $userName = trim($helper->ask($input, $output, new Question('Please enter you user.name: ', null)));
+                    $userEmail = trim($helper->ask($input, $output, new Question('Please enter you user.email: ', null)));
+                    $this->gitService->configure($userName, $userEmail);
+                    $this->gitService->initializeRepository($directoryPath, $repo);
+                }
 
                 $this->filesystem->remove($directoryPath);
 
