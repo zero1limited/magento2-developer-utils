@@ -56,7 +56,7 @@ class Comparer extends ComposerComparer
      *
      * @return void
      */
-    public function setSource($source)
+    public function setSource($source): void
     {
         $this->source = $source;
         parent::setSource($source);
@@ -67,7 +67,7 @@ class Comparer extends ComposerComparer
      *
      * @return void
      */
-    public function setUpdate($update)
+    public function setUpdate($update): void
     {
         $this->update = $update;
         parent::setUpdate($update);
@@ -90,7 +90,7 @@ class Comparer extends ComposerComparer
     /**
      * @return void
      */
-    public function doCompare()
+    public function doCompare(): void
     {
         parent::doCompare();
 
