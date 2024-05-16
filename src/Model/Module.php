@@ -57,7 +57,7 @@ class Module
      */
     public function getName()
     {
-        return $this->name;
+        return $this->moduleName;
     }
 
     /**
