@@ -40,6 +40,23 @@ class Controller extends Command
     public const OPTION_KEY_FRONTNAME = 'frontname';
     public const OPTION_KEY_CONTROLLER = 'controller';
     public const OPTION_KEY_ACTION = 'action';
+    public const OPTION_KEY_RESPONSE_TYPE = 'response-type';
+    public const OPTION_VALUE_RESPONSE_TYPE_HTML = 'html';
+    public const OPTION_VALUE_RESPONSE_TYPE_JSON = 'json';
+    public const OPTION_VALUE_RESPONSE_TYPE_TXT = 'txt';
+    public const OPTION_VALUES_RESPONSE_TYPE = [
+        self::OPTION_VALUE_RESPONSE_TYPE_HTML,
+        self::OPTION_VALUE_RESPONSE_TYPE_JSON,
+        self::OPTION_VALUE_RESPONSE_TYPE_TXT,
+    ];
+    public const OPTION_KEY_REQUEST_METHOD = 'http-method';
+    public const OPTION_VALUE_REQUEST_METHOD_GET = 'GET';
+    public const OPTION_VALUE_REQUEST_METHOD_POST = 'POST';
+    public const OPTION_VALUES_REQUEST_METHOD = [
+        self::OPTION_VALUE_REQUEST_METHOD_GET,
+        self::OPTION_VALUE_REQUEST_METHOD_POST,
+    ];
+    public const OPTION_KEY_FORCE = 'force';
 
     protected static $defaultName = 'make:controller';
 
@@ -67,7 +84,12 @@ class Controller extends Command
 
         $this->addOption(self::OPTION_KEY_MODULE_NAME, null, InputOption::VALUE_REQUIRED, 'Name of the module (Magento module name, MyCompany_MyModule)');
         $this->addOption(self::OPTION_KEY_AREA, null, InputOption::VALUE_REQUIRED, 'Area ('.implode(', ',self::OPTION_VALUES_AREA).')');
-        $this->addOption(self::OPTION_KEY_FRONTNAME, null, InputOption::VALUE_REQUIRED, 'Front name of the controller (e.g https://www.example.com/FRONTNAME/Controller/Action)');
+        $this->addOption(self::OPTION_KEY_FRONTNAME, null, InputOption::VALUE_REQUIRED, 'Front name of the controller (e.g https://www.example.com/FRONTNAME/controller/action)');
+        $this->addOption(self::OPTION_KEY_CONTROLLER, null, InputOption::VALUE_REQUIRED, 'Controller (e.g https://www.example.com/frontname/CONTROLLER/action)');
+        $this->addOption(self::OPTION_KEY_ACTION, null, InputOption::VALUE_REQUIRED, 'Action (e.g https://www.example.com/frontname/controller/ACTION)');
+        $this->addOption(self::OPTION_KEY_RESPONSE_TYPE, null, InputOption::VALUE_REQUIRED, 'Response type ('.implode(', ',self::OPTION_VALUES_RESPONSE_TYPE).')');
+        $this->addOption(self::OPTION_KEY_REQUEST_METHOD, null, InputOption::VALUE_REQUIRED, 'HTTP Method ('.implode(', ',self::OPTION_VALUES_REQUEST_METHOD).')');
+        $this->addOption(self::OPTION_KEY_FORCE, null, InputOption::VALUE_NONE, 'Overwrite files without asking.');
     }
 
     protected function getOption(InputInterface $input, OutputInterface $output, $name, array $choices = null)
@@ -195,22 +217,68 @@ class Controller extends Command
             $xml = $xpath->document->saveXML(
                 $xpath->document->getElementsByTagName('config')[0]
             );
-            echo $xml.PHP_EOL;
-            echo '-====='.PHP_EOL;
+            // echo $xml.PHP_EOL;
+            // echo '-====='.PHP_EOL;
             $formatter = new Formatter();
             $formattedXml = $formatter->format(
                 '<?xml version="1.0"?>'.PHP_EOL.
                 $xml
             );
-            echo $formattedXml.PHP_EOL;
+            // echo $formattedXml.PHP_EOL;
             $this->filesystem->dumpFile($moduleRoutesXmlPath, $formattedXml);
-            
-
-
-
-
-            return 0;
+            $output->writeln('File updated: '.$moduleRoutesXmlPath);
         }
+
+        // Sort out the controller
+        $controllerName = ucfirst($this->getOption($input, $output, self::OPTION_KEY_CONTROLLER));
+        $actionName = ucfirst($this->getOption($input, $output, self::OPTION_KEY_ACTION));
+        $requestMethod = $this->getOption($input, $output, self::OPTION_KEY_REQUEST_METHOD, self::OPTION_VALUES_REQUEST_METHOD);
+        $responseType = $this->getOption($input, $output, self::OPTION_KEY_RESPONSE_TYPE, self::OPTION_VALUES_RESPONSE_TYPE);
+        
+        $controllerPath = $module->getBaseDirectory().'/Controller/'.$controllerName.'/'.$actionName.'.php';
+        $controllerTemplate = 'Controller/'.strtolower($requestMethod).'_'.strtolower($responseType).'.php';
+        $files = [
+            $controllerPath => $controllerTemplate,
+        ];
+
+        if($responseType == self::OPTION_VALUE_RESPONSE_TYPE_HTML){
+            $layoutPath = $module->getBaseDirectory().'/view/frontend/layout/'.strtolower($frontName).'_'.strtolower($controllerName).'_'.strtolower($actionName).'.xml';
+            $blockPath = $module->getBaseDirectory().'/Block/'.$controllerName.'/'.$actionName.'.php';
+            $templatePath = $module->getBaseDirectory().'/view/frontend/templates/'.strtolower($controllerName).'/'.strtolower($actionName).'.phtml';
+
+            $files[$layoutPath] = 'Controller/layout_html.xml';
+            $files[$blockPath] = 'Controller/block.php';
+            $files[$templatePath] = 'Controller/template.phtml';
+        }
+
+        $templateVars = [
+            'namespace' => $module->getNamespace(),
+            'controller' => $controllerName,
+            'action' => $actionName,
+            'frontname' => $frontName,
+            'module_name' => $module->getName(),
+        ];
+
+        foreach($files as $outputPath => $templatePath){
+            $force = false;
+            if($this->filesystem->exists($outputPath)){
+                // check for forced for each file
+                $force = $this->getOption($input, $output, self::OPTION_KEY_FORCE);
+            }
+            if(!$this->filesystem->exists($outputPath) || $force){
+                $this->filesystem->dumpFile(
+                    $outputPath,
+                    $this->getMustacheEngine()->render($templatePath,  $templateVars)
+                );
+                $output->writeln('File written: '.$outputPath);
+            }
+        }
+
+        $output->writeln('<info>Done</info>');
+
+        $output->writeln('You may need to run php bin/magento cache:flush');
+        $output->writeln('Controller accessible at '.$requestMethod.' https://www.exmaple.com/'.strtolower($frontName).'/'.strtolower($controllerName).'/'.strtolower($actionName));
+        return 0;
     }
 
     protected function getComposerPackageNameFromMagentoModuleName($magentoModuleName)
@@ -241,6 +309,14 @@ class Controller extends Command
         $m = new Mustache_Engine(array(
             'entity_flags' => ENT_QUOTES,
             'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__) . '/../../../var/templates'),
+            'helpers' => [
+                'lower_case' => function($string = null, \Mustache_LambdaHelper $render = null){
+                    if($render){
+                        $string = $render($string);
+                    }
+                    return strtolower($string);
+                }
+            ]
         ));
         return $m;
     }
