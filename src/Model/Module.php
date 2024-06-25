@@ -54,6 +54,7 @@ class Module
 
     /**
      * @return string
+     * e.g extensions/vendor/module
      */
     public function getName()
     {
