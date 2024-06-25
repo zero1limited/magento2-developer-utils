@@ -13,6 +13,7 @@ This is very much a work in progress, any feedback or contributes are welcome.
 
 ### TODO
 - [ ] refactor routes logic to OOP (like observer logic)
+- [ ] refactor cli command logic to OOP (like observer logic)
 
 ### Vendor Patches
 The ability to generate patches from the vendor directory.
