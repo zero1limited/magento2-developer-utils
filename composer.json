@@ -13,10 +13,10 @@
         "saloonphp/xml-wrangler": "^1.2",
         "league/flysystem": "~2.4.5",
         "galbar/jsonpath": "^3.0 || ^2.0",
-        "composer/composer": "^2.0",
         "vyuldashev/xml-to-array": "^v1.1",
         "spatie/array-to-xml": "^2.7 || ^3.3",
         "shanethehat/pretty-xml": "^1.0"
+        "composer/composer": "^2.7"
     },
     "autoload": {
         "psr-4": {
