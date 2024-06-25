@@ -42,24 +42,7 @@ class Debug extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // $this->gitService->setOutput($output);
-        // $this->composerService->addRepository('aaaa', [
-        //     'type' => 'path', 
-        //     'url' => 'extensions/zero1/smile-elasticsuite-concreate-category-product-rewrites',
-        //     'options' => [
-        //         'symlink' => true,
-        //     ]
-        // ]);
-
-        // $this->composerService->removeRepository('aaaa');
-        // die('yo');
-
         try{
-            
-        // $this->gitService->initializeRepository(
-        //     'extensions/zero1/admin-user-password-requirements',
-        //     'git@github.com:zero1limited/magento2-admin-user-password-requirements.git'
-        // );
             $this->gitService->configure('goo', 'boo');
         }catch(\Exception $e){
             echo $e->getMessage().PHP_EOL;
