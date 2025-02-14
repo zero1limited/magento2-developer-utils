@@ -1,0 +1,25 @@
+<?php
+namespace {{ namespace }}Controller\{{ controller }};
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+
+class {{ action }} implements HttpPostActionInterface
+{
+    protected JsonFactory $jsonFactory;
+
+	public function __construct(
+		JsonFactory $jsonFactory
+    ){
+		$this->jsonFactory = $jsonFactory;
+	}
+
+	public function execute()
+	{
+		$result = $this->jsonFactory->create();
+		$result->setData([
+			'key' => 'value',
+		]);
+		return $result;
+	}
+}
