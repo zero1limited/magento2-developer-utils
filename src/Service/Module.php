@@ -26,6 +26,11 @@ class Module
         $this->filesystem = $fileSystemFactory->build();
     }
 
+    /**
+     * @param string $moduleName
+     * @throws \Zero1\MagentoDev\Service\Module\UnableToLocateModuleException
+     * @return \Zero1\MagentoDev\Model\module
+     */
     public function locate($moduleName)
     {
         if(!isset($this->modules[$moduleName])){

@@ -164,7 +164,7 @@ class Diff extends Command
 
                 if ($changes = $downloader->getLocalChanges($package, $targetDir)) {
                     $comparer = $downloader->getComparer();
-                    $changes = $comparer->getChanged(false, false);
+                    $changes = $comparer->getChanged();
                     $downloader->setComparer(null);
 
                     $moduleChanges[$package->getName()] = array_merge([
