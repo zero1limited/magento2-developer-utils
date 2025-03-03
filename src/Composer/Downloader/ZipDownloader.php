@@ -80,7 +80,7 @@ class ZipDownloader extends ComposerZipDownloader
             $comparer->setSource($targetDir.'_compare');
             $comparer->setUpdate($targetDir);
             $comparer->doCompare();
-            $output = $comparer->getChanged(true, true);
+            $output = $comparer->getChanged();
             $this->filesystem->removeDirectory($targetDir.'_compare');
         } catch (\Exception $e) {
         }
@@ -91,6 +91,18 @@ class ZipDownloader extends ComposerZipDownloader
             throw $e;
         }
 
-        return trim($output);
+        if(empty($output)){
+            return null;
+        }
+        $result = '';
+        foreach($output as $key => $items){
+            $result .= $key.' ('.($items? count($items) : '0').')'.PHP_EOL;
+            if($items){
+                foreach($items as $item){
+                    $result .= '    '.$item.PHP_EOL;
+                }
+            }
+        }
+        return $result;
     }
 }
