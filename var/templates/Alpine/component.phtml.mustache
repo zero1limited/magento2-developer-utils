@@ -1,0 +1,26 @@
+<?php 
+$componentInitMethod = 'init{{component_name}}_'.uniqid(); 
+?>
+<script>
+    function <?= $componentInitMethod ?>() {
+        return {
+            productId: '<?= uniqid() ?>',
+            // more code
+            init() {
+                // some initialization code
+            }
+        };
+    }
+
+    window.addEventListener(
+        'alpine:init',
+        () => {
+            console.log('alpine:init'); 
+            Alpine.data('<?= $componentInitMethod ?>', <?= $componentInitMethod ?>)},
+        {once: true}
+    );
+</script>
+<div x-data="<?= $componentInitMethod ?>">
+   more code
+   <span x-text="'Product ID: ' + productId"></span>
+</div>

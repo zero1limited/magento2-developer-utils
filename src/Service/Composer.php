@@ -2,6 +2,8 @@
 
 namespace Zero1\MagentoDev\Service;
 
+use mikehaertl\shellcommand\Command as ShellCommand;
+
 class Composer
 {
     protected $modules;
@@ -37,5 +39,18 @@ class Composer
     public function writeComposerJson($composerJson)
     {
         file_put_contents('composer.json', json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
+
+    public function require($package, $version = '')
+    {
+        $command = new ShellCommand('composer require '.$package.($version? ':'.$version : ''));
+        if ($command->execute()) {
+            return $command->getOutput();
+        } else {
+            throw new \RuntimeException(
+                'Composer require failed: ' . $command->getError(),
+                $command->getExitCode()
+            );
+        }
     }
 }

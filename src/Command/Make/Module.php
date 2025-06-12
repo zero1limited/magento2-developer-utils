@@ -17,6 +17,7 @@ use Zero1\MagentoDev\Service\Git as GitService;
 use Symfony\Component\Filesystem\Filesystem;
 use mikehaertl\shellcommand\Command as ShellCommand;
 use Zero1\MagentoDev\Service\Git\UnconfiguredException;
+use Zero1\MagentoDev\Service\TemplateRenderer;
 
 class Module extends Command
 {
@@ -33,7 +34,8 @@ class Module extends Command
 
     public function __construct(
         ComposerService $composerService,
-        GitService $gitService
+        GitService $gitService,
+        protected TemplateRenderer $templateRenderer
     ) {
         $this->composerService = $composerService;
         $this->gitService = $gitService;
@@ -54,9 +56,7 @@ class Module extends Command
         $this->addOption('name', null, InputOption::VALUE_REQUIRED, 'name of the module (Magento module name, MyCompany_MyModule)');
         $this->addOption('composer-package-name', null, InputOption::VALUE_OPTIONAL, 'composer-package-name', null);
         $this->addOption('directory', null, InputOption::VALUE_OPTIONAL, 'directory', null);
-        $this->addOption('repository', null, InputOption::VALUE_OPTIONAL, 'Source control repo location eg git@github.com:org/repo.git. If supplied, the new module will be pushed to the repo and added as a submodule to the current project.', null);
-
-
+        $this->addOption('overwrite', null, InputOption::VALUE_NONE, 'overwrite existing files');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -94,18 +94,17 @@ class Module extends Command
                 }
             }
         }
-        // echo 'composer package nane: '.$composerPackage.PHP_EOL;
+        
         $context['composer_package_name'] = $composerPackage;
         $context['composer_psr4'] = $magentoModuleCompanyName.'\\\\'.$magentoModulePackageName.'\\\\';
         
         $directory = $input->getOption('directory');
+        $directories = [
+            'extensions' => $this->getExtensionsDirectory($composerPackage),
+            'app' => $this->getAppCodeDirectory($moduleName),
+            'custom' => 'Custom',
+        ];
         if(!$directory){
-            $directories = [
-                'extensions' => $this->getExtensionsDirectory($composerPackage),
-                'app' => $this->getAppCodeDirectory($moduleName),
-                'custom' => 'Custom',
-            ];
-
             $question = new ChoiceQuestion(
                 'Directory (default: extensions): ',
                 $directories,
@@ -126,19 +125,32 @@ class Module extends Command
             }else{
                 $directoryPath = $this->getAppCodeDirectory($moduleName);
             }
+        }else{
+            if(!isset($directories[$directory])){
+                $output->writeln(
+                    'Invalid directory option: '.$directory.'.'
+                    .' Was expecting one of: '.implode(', ', array_keys($directories))
+                );
+                return 1;
+            }
+            $directoryPath = $directories[$directory];
         }
-        // echo 'directory: '.json_encode($directory).PHP_EOL;
-        // echo 'directory path: '.$directoryPath.PHP_EOL;
 
         // actually install the module
+        $overwrite = (bool)$input->getOption('overwrite');
         if(!$this->filesystem->exists($directoryPath)){
             $this->filesystem->mkdir($directoryPath, 0777);
         }else{
-            echo 'dir already exists, TODO add a force option (replace or overwrite)'.PHP_EOL;
-            die;
+            if(!$overwrite){
+                $output->writeln('Drectory already exists: '.$directoryPath);
+                $question = new ConfirmationQuestion('Overwrite [Y/n]?', true);
+                if (!$helper->ask($input, $output, $question)) {
+                    return 1;
+                }
+            }
         }
 
-        $mustache = $this->getMustacheEngine();
+        $files = [];
         foreach([
             'composer.json',
             '.gitignore',
@@ -146,39 +158,33 @@ class Module extends Command
             'registration.php',
             'etc/module.xml'
         ] as $file){
-            $filepath = $directoryPath.'/'.$file;
-            if(!$this->filesystem->exists(dirname($filepath))){
-                $this->filesystem->mkdir(dirname($filepath), 0777);
-            }
-            
-            $this->filesystem->dumpFile($filepath, $mustache->render($file, $context));
+            $files[$file] = $directoryPath.'/'.$file;
         }
 
+        if($overwrite){
+            $this->templateRenderer->writeTemplates($files, $context);
+            foreach($files as $template => $outputFilepath){
+                $output->writeln('Written: '.$outputFilepath);
+            }
+        }else{
+            foreach($files as $template => $outputFilepath){
+                if(!$this->filesystem->exists($outputFilepath)){
+                    $this->templateRenderer->writeTemplate($template, $outputFilepath, $context);
+                }else{
+                    $output->writeln('File already exists: '.$outputFilepath);
+                    $question = new ConfirmationQuestion('Overwrite [Y/n]?', false);
+                    if (!$helper->ask($input, $output, $question)) {
+                        continue;
+                    }
+                    $this->templateRenderer->writeTemplate($template, $outputFilepath, $context);
+                    $output->writeln('Written: '.$outputFilepath);
+                }
+            }
+        }
+        
         if($directory == 'extensions' || $directory == 'custom'){
 
-            $repo = $input->getOption('repository');
-            if(!$repo){
-                if($helper->ask($input, $output, new ConfirmationQuestion('Would you like to initialize source control?', false))){
-                    $repo = trim($helper->ask($input, $output, new Question('Please enter the repository url (git@github.com:org/repo.git): ', null)));
-                }
-            }
-
-            if($repo){
-                try{
-                    $this->gitService->initializeRepository($directoryPath, $repo);
-                }catch(UnconfiguredException $e){
-                    $output->writeln($e->getMessage());
-                    $userName = trim($helper->ask($input, $output, new Question('Please enter you user.name: ', null)));
-                    $userEmail = trim($helper->ask($input, $output, new Question('Please enter you user.email: ', null)));
-                    $this->gitService->configure($userName, $userEmail);
-                    $this->gitService->initializeRepository($directoryPath, $repo);
-                }
-
-                $this->filesystem->remove($directoryPath);
-
-                $this->gitService->addSubmodule($repo, $directoryPath, $moduleName);
-            }
-
+            $output->write('Configuring composer repository...');
             $this->composerService->addRepository($composerPackage, [
                 'type' => 'path', 
                 'url' => $directoryPath,
@@ -186,18 +192,19 @@ class Module extends Command
                     'symlink' => true,
                 ]
             ]);
+            $output->writeln('OK');
 
-            $output->writeLn('<info>composer require '.$composerPackage.':@dev</info>');
-            $command = new ShellCommand('composer require '.$composerPackage.':@dev');
-            echo $command->getOutput().PHP_EOL;
+            $output->write('Requiring composer package...');
+            try{
+                $response = $this->composerService->require($composerPackage, '@dev');
+            }catch(\RuntimeException $e){
+                $output->writeln('<error>'.$e->getMessage().'</error>');
+                return $e->getCode();
+            }
+            $output->writeln('OK');
         }
-
-
-        // return this if there was no problem running the command
+        
         return 0;
-
-        // or return this if some error happened during the execution
-        // return 1;
     }
 
     protected function getComposerPackageNameFromMagentoModuleName($magentoModuleName)
@@ -216,18 +223,5 @@ class Module extends Command
     protected function getAppCodeDirectory($magentoModuleName)
     {
         return 'app/code/'.str_replace('_', '/', $magentoModuleName);
-    }
-
-    /**
-     * TODO - move this
-     *
-     * @return Mustache_Engine
-     */
-    protected function getMustacheEngine()
-    {
-        $m = new Mustache_Engine(array(
-            'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__) . '/../../../var/templates'),
-        ));
-        return $m;
     }
 }
