@@ -140,3 +140,6 @@ Help:
     }
   ```
 3. `composer require --dev zero1/magento-dev:@dev`
+
+
+## Upgrading Magento

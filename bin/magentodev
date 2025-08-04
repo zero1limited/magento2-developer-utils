@@ -5,27 +5,26 @@ if(php_sapi_name() !== 'cli') {
     exit;
 }
 
-$root_app = dirname(__DIR__);
-$depth = 4;
-while(!is_file($root_app . '/vendor/autoload.php') && $depth > 0){
-    $root_app = dirname(__DIR__, $depth);
-    $depth--;
+if(isset($_SERVER['SCRIPT_NAME'])){
+    $root_app = $_SERVER['SCRIPT_NAME'];
+    do{
+        $root_app = dirname($root_app);
+    }while($root_app !== '/' && basename($root_app) != 'vendor');
+
+    if($root_app == '/'){
+        throw new \Exception('Unable to find vendor directory');
+    }
+}else{
+    throw new \Exception('SCRIPT_NAME not set');
 }
-if(!is_file($root_app . '/vendor/autoload.php')){
-    throw new \Exception('Unable to find autoload.php');
+if(!is_file($root_app . '/autoload.php')){
+    throw new \Exception('Unable to find autoload.php ('.$root_app . '/autoload.php)');
 }
-require $root_app . '/vendor/autoload.php';
+require $root_app . '/autoload.php';
 
 $kernel = new \Zero1\MagentoDev\Kernel('dev', true);
 $kernel->boot();
 
 $container = $kernel->getContainer();
 $application = $container->get(\Symfony\Component\Console\Application::class);
-$application->run();
-
-
-$application = new Application();
-
-$application->add(new \Zero1\MagentoDev\Command\Module\WorkOn());
-
 $application->run();

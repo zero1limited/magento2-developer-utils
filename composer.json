@@ -4,8 +4,10 @@
         "GPL-3.0-or-later"
     ],
     "require": {
-        "magento/framework": ">=103.0.7 < 103.0.8",
-        "symfony/console": "^6.4.0",
+        "symfony/console": "^5.4",
+        "symfony/http-kernel": "*",
+        "symfony/config": "*",
+        "symfony/dependency-injection": "*",
         "symfony/yaml": "*",
         "mustache/mustache": "*",
         "symfony/filesystem": "^5.4|^6.0|^7.0",
