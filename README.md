@@ -143,3 +143,11 @@ Help:
 
 
 ## Upgrading Magento
+
+1. install this module globally
+2. run `upgrade:magento --target-version=2.4.8`
+3. upgrade php
+4. re-run `upgrade:magento`
+
+**known issues**
+- bug where `.` is exploded and shouldn't be, this happens when composer json is flatterned and unflatterened
