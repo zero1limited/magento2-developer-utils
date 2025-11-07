@@ -1,0 +1,111 @@
+{
+    "name": "laravel-zero/framework",
+    "description": "The Laravel Zero Framework.",
+    "keywords": ["framework", "laravel", "laravel zero", "console", "cli"],
+    "homepage": "https://laravel-zero.com",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/laravel-zero/laravel-zero/issues",
+        "source": "https://github.com/laravel-zero/laravel-zero"
+    },
+    "authors": [
+        {
+            "name": "Nuno Maduro",
+            "email": "enunomaduro@gmail.com"
+        },
+        {
+            "name": "Owen Voke",
+            "email": "development@voke.dev"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "dragonmantank/cron-expression": "^3.4",
+        "guzzlehttp/guzzle": "^7.10.0",
+        "illuminate/cache": "^12.32.5",
+        "illuminate/collections": "^12.32.5",
+        "illuminate/config": "^12.32.5",
+        "illuminate/console": "^12.32.5",
+        "illuminate/container": "^12.32.5",
+        "illuminate/contracts": "^12.32.5",
+        "illuminate/events": "^12.32.5",
+        "illuminate/filesystem": "^12.32.5",
+        "illuminate/process": "^12.32.5",
+        "illuminate/support": "^12.32.5",
+        "illuminate/testing": "^12.32.5",
+        "laravel-zero/foundation": "^12.32.6",
+        "laravel/prompts": "^0.3.7",
+        "league/flysystem": "^3.30.0",
+        "nunomaduro/collision": "^8.8.2",
+        "nunomaduro/laravel-console-summary": "^1.13.0",
+        "nunomaduro/laravel-console-task": "^1.10",
+        "nunomaduro/laravel-desktop-notifier": "^2.9.0",
+        "nunomaduro/termwind": "^2.3.1",
+        "psr/log": "^3.0.2",
+        "ramsey/uuid": "^4.9.1",
+        "symfony/console": "^7.3.4",
+        "symfony/error-handler": "^7.3.4",
+        "symfony/event-dispatcher": "^7.3.3",
+        "symfony/finder": "^7.3.2",
+        "symfony/process": "^7.3.4",
+        "symfony/var-dumper": "^7.3.4",
+        "vlucas/phpdotenv": "^5.6.2"
+    },
+    "require-dev": {
+        "illuminate/bus": "^12.32.5",
+        "illuminate/database": "^12.32.5",
+        "illuminate/http": "^12.32.5",
+        "illuminate/log": "^12.32.5",
+        "illuminate/queue": "^12.32.5",
+        "illuminate/redis": "^12.32.5",
+        "illuminate/view": "^12.32.5",
+        "laravel-zero/phar-updater": "^1.4.2",
+        "laravel/pint": "^1.25.1",
+        "nunomaduro/laravel-console-dusk": "^1.14",
+        "nunomaduro/laravel-console-menu": "^3.6",
+        "pestphp/pest": "^3.8.4|^4.1.2",
+        "phpstan/phpstan": "^2.1.30"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelZero\\Framework\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests",
+            "App\\": "tests/Application/app"
+        },
+        "classmap": [
+            "src/Components/Database/stubs"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "lint": "pint --ansi",
+        "test:lint": "pint --test --ansi",
+        "test:types": "phpstan analyse --ansi --memory-limit=-1",
+        "test:unit": "pest --colors=always",
+        "test": [
+            "@test:types",
+            "@test:lint",
+            "@test:unit"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "12.x-dev"
+        }
+    },
+    "suggest": {
+        "ext-pcntl": "Required to ensure that data is cleared when cancelling the build process."
+    }
+}

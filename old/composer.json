@@ -1,0 +1,61 @@
+{
+    "name": "zero1/magento-dev",
+    "license": [
+        "GPL-3.0-or-later"
+    ],
+    "require": {
+        "magento/framework": ">=103.0.8 <103.0.9",
+        "symfony/console": "^6.4.0",
+        "symfony/http-kernel": "^6.0",
+        "symfony/yaml": "*",
+        "twig/twig": "^3.0",
+        "symfony/filesystem": "^7.0",
+        "mikehaertl/php-shellcommand": "^1.7",
+        "saloonphp/xml-wrangler": "^1.2",
+        "league/flysystem": "^3",
+        "galbar/jsonpath": "^3.0 || ^2.0",
+        "vyuldashev/xml-to-array": "^v1.1",
+        "spatie/array-to-xml": "^2.7 || ^3.3",
+        "shanethehat/pretty-xml": "^1.0",
+        "composer/composer": "^2.7.7",
+        "symfony/config": "^7",
+        "symfony/dependency-injection": "^7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zero1\\MagentoDev\\": "src/"
+        }
+    },
+    "keywords": [
+        "Magento 2",
+        "Magento"
+    ],
+    "support": {
+        "source": "https://github.com/zero1limited/magento2-developer-utils.git"
+    },
+    "suggest": {
+        "mdoq/module-connector": "Improves DevOps for Magento2"
+    },
+    "bin": [
+        "bin/magentodev"
+    ],
+    "repositories": {
+        "magento": {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Zero1\\MagentoDev\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "magento/composer-dependency-version-audit-plugin": true
+        }
+    }
+}

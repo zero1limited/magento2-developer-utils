@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="performance_monitoring" translate="label" type="text" sortOrder="102" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Performance Monitoring</label>
+            <tab>service</tab>
+            <resource>MDOQ_SitePerformanceMonitoring::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="allowed_domains" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Allowed Domains</label>
+                    <comment>comma separated</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

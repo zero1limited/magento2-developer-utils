@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Psl;
+
+/**
+ * This function is a kludge that returns the last argument it receives.
+ *
+ * @template T
+ *
+ * @param T ...$args
+ *
+ * @return T|null
+ *
+ * @pure
+ */
+function sequence(mixed ...$args): mixed
+{
+    $result = null;
+    foreach ($args as $arg) {
+        $result = $arg;
+    }
+
+    return $result;
+}

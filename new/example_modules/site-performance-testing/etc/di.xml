@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="mdoq_siteperformancemonitoring_site_test" xsi:type="object">MDOQ\SitePerformanceMonitoring\Console\Command\TestModelCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="MDOQ\SitePerformanceMonitoring\Api\Data\SiteInterface" type="MDOQ\SitePerformanceMonitoring\Model\Site"/>
+    <preference for="MDOQ\SitePerformanceMonitoring\Api\SiteRepositoryInterface" type="MDOQ\SitePerformanceMonitoring\Model\SiteRepository"/>
+
+    <virtualType name="MDOQ\SitePerformanceMonitoring\Model\SiteValidation\NameLength" type="Magento\Framework\Validator\StringLength">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="min" xsi:type="number">3</item>
+                <item name="max" xsi:type="number">25</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MDOQ\SitePerformanceMonitoring\Model\SiteValidator">
+        <arguments>
+            <argument name="rules" xsi:type="array">
+                <item name="name_length" xsi:type="array">
+                    <item name="validator" xsi:type="object">MDOQ\SitePerformanceMonitoring\Model\SiteValidation\NameLength</item>
+                    <item name="field" xsi:type="string">name</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="mdoq_siteperformancemonitoring_site_listing_data_source" xsi:type="string">MDOQ\SitePerformanceMonitoring\Model\ResourceModel\Site\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="MDOQ\SitePerformanceMonitoring\Model\ResourceModel\Site\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mdoq_siteperformancemonitoring_site</argument>
+            <argument name="eventPrefix" xsi:type="string">mdoq_siteperformancemonitoring_site_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">mdoq_siteperformancemonitoring_site_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">MDOQ\SitePerformanceMonitoring\Model\ResourceModel\Site</argument>
+        </arguments>
+    </type>
+</config>

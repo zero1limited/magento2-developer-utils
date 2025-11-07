@@ -1,0 +1,24 @@
+{
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "minMsi": 100,
+    "minCoveredMsi": 100,
+    "phpUnit": {
+        "customPath": ".\/tools\/phpunit.phar"
+    },
+    "logs": {
+        "text": ".phpunit.cache/infection.log",
+        "html": ".phpunit.cache/infection"
+    },
+    "mutators": {
+        "@default": true,
+        "CastInt": {
+            "ignore": [
+                "VeeWee\\Xml\\*Exception::__construct"
+            ]
+        }
+    }
+}

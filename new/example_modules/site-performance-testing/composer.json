@@ -1,0 +1,24 @@
+{
+    "name": "mdoq/site-performance-testing",
+    "license": [
+        "GPL-3.0-or-later"
+    ],
+    "require": {
+        "magento/framework": "*",
+        "nesbot/carbon": "*",
+        "league/csv": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "MDOQ\\SitePerformanceMonitoring\\": ""
+        }
+    },
+    "keywords": [
+        "Magento 2",
+        "Magento",
+        "MDOQ_SitePerformanceMonitoring"
+    ]
+}

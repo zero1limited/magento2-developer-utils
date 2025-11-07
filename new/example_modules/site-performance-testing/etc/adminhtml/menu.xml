@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="MDOQ_SitePerformanceMonitoring::index" 
+            title="Performance Monitoring" 
+            module="MDOQ_SitePerformanceMonitoring" 
+            sortOrder="100" 
+            action="performance_monitoring" resource="MDOQ_SitePerformanceMonitoring::index"/>
+
+        <add id="MDOQ_SitePerformanceMonitoring::site" title="Sites" translate="title" module="MDOQ_SitePerformanceMonitoring" sortOrder="0" parent="Magento_Backend::system_other_settings" action="mdoq_siteperformancemonitoring/site" resource="MDOQ_SitePerformanceMonitoring::site"/>
+    </menu>
+</config>

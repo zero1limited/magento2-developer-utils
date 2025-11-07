@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/mdoq_siteperformancemonitoring_site/:id" method="GET">
+        <service class="MDOQ\SitePerformanceTesting\Api\SiteRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="MDOQ_SitePerformanceTesting::site"/>
+        </resources>
+    </route>
+    <route url="/V1/mdoq_siteperformancemonitoring_site/search" method="GET">
+        <service class="MDOQ\SitePerformanceTesting\Api\SiteRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="MDOQ_SitePerformanceTesting::site"/>
+        </resources>
+    </route>
+    <route url="/V1/mdoq_siteperformancemonitoring_site" method="POST">
+        <service class="MDOQ\SitePerformanceTesting\Api\SiteRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="MDOQ_SitePerformanceTesting::site"/>
+        </resources>
+    </route>
+    <route url="/V1/mdoq_siteperformancemonitoring_site/:id" method="PUT">
+        <service class="MDOQ\SitePerformanceTesting\Api\SiteRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="MDOQ_SitePerformanceTesting::site"/>
+        </resources>
+    </route>
+    <route url="/V1/mdoq_siteperformancemonitoring_site/:id" method="DELETE">
+        <service class="MDOQ\SitePerformanceTesting\Api\SiteRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="MDOQ_SitePerformanceTesting::site"/>
+        </resources>
+    </route>
+</routes>

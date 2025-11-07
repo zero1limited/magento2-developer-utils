@@ -1,0 +1,20 @@
+<?php
+
+/** @var \Magento\Csp\Helper\CspNonceProvider $cspNonceProvider */
+// $cspNonceProvider = $this->helper(\Magento\Csp\Helper\CspNonceProvider::class);
+// echo get_class($cspNonceProvider);
+?>
+
+<h3>Add More Sites With</h3>
+
+<pre>
+    <?= htmlentities("<script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            fetch('https://www.mdoq.io/performance_monitoring/MY_CUSTOMER_KEY', {method: 'POST', body: JSON.stringify({
+                page: window.location.href,
+                timing: performance.timing
+            })})
+        });
+    </script>"); ?>
+    <?php //$hyvaCsp->registerInlineScript() ?>
+</pre>

@@ -1,0 +1,69 @@
+php_version = "8.2"
+
+[source]
+paths = ["src", "tests", "examples"]
+includes = ["vendor"]
+excludes = [
+    "src/bootstrap.php",
+    "src/preload.php",
+    "src/Psl/Internal/Loader.php",
+]
+
+[linter]
+plugins = ["php-unit"]
+
+[[linter.rules]]
+name = "maintainability/cyclomatic-complexity"
+threshold = 43
+
+[[linter.rules]]
+name = "maintainability/kan-defect"
+threshold = 3.5
+
+[[linter.rules]]
+name = "maintainability/excessive-parameter-list"
+threshold = 9
+
+[[linter.rules]]
+name = "best-practices/excessive-nesting"
+threshold = 5
+
+[[linter.rules]]
+name = "naming/trait"
+psr = false
+
+[[linter.rules]]
+name = "naming/interface"
+psr = false
+
+[[linter.rules]]
+name = "naming/class"
+psr = false
+
+[[linter.rules]]
+name = "maintainability/halstead"
+level = "off"
+
+[[linter.rules]]
+name = "maintainability/too-many-enum-cases"
+level = "off"
+
+[[linter.rules]]
+name = "maintainability/too-many-methods"
+level = "off"
+
+[[linter.rules]]
+name = "maintainability/long-inheritance-chain"
+level = "off"
+
+[[linter.rules]]
+name = "safety/no-error-control-operator"
+level = "off"
+
+[[linter.rules]]
+name = "safety/no-global"
+level = "off"
+
+[[linter.rules]]
+name = "best-practices/no-boolean-flag-parameter"
+level = "off"

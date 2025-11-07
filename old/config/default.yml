@@ -1,0 +1,2 @@
+defaults:
+  magento_root: '%kernel.project_dir%/../../..'

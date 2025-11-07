@@ -1,0 +1,102 @@
+<?php
+
+namespace MDOQ\SitePerformanceMonitoring\Setup;
+
+use Magento\Framework\Setup\InstallDataInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Eav\Model\Config;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\InstallDataInterface;
+use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+
+class InstallData implements InstallDataInterface
+{
+	public function __construct(
+        protected EavSetupFactory $eavSetupFactory,
+        protected Config $eavConfig
+    ) { }
+
+    /**
+     * Installs data for a module
+     *
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleContextInterface $context
+     * @return void
+     */
+    public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    {
+
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
+
+        $eavSetup->addAttribute(\Magento\Customer\Model\Customer::ENTITY, 'custom_text_field', [
+            'label' => 'Middle Name',
+            'system' => 0,
+            'position' => 700,
+            'sort_order' => 700,
+            'visible' => true,
+            'note' => '',
+            'type' => 'varchar',
+            'input' => 'text',
+        ]);
+
+        $this->getEavConfig()
+            ->getAttribute('customer', 'custom_text_field')
+            ->setData('is_user_defined', 1)
+            ->setData('is_required', 0)
+            ->setData('default_value', '')
+            ->setData('used_in_forms', ['adminhtml_customer', 'checkout_register', 'customer_account_create', 'customer_account_edit', 'adminhtml_checkout'])->save();
+        
+        $eavSetup->addAttribute(\Magento\Customer\Model\Customer::ENTITY, 'custom_dropdown', [
+            'label' => 'How did you hear about us?',
+            'system' => 0,
+            'position' => 700,
+            'sort_order' => 700,
+            'visible' => true,
+            'note' => '',
+            'type' => 'int',
+            'input' => 'select',
+            'source' => 'Company\Mymodule\Model\Source\Customdropdown',
+        ]);
+        $this->getEavConfig()
+            ->getAttribute('customer', 'custom_dropdown')
+            ->setData('is_user_defined', 1)
+            ->setData('is_required', 0)
+            ->setData('default_value', '')
+            ->setData('used_in_forms', ['adminhtml_customer', 'checkout_register', 'customer_account_create', 'customer_account_edit', 'adminhtml_checkout'])->save();
+
+        $eavSetup->addAttribute(\Magento\Customer\Model\Customer::ENTITY, 'custom_yes_no', [
+            'label' => 'Are you an existing customer?',
+            'system' => 0,
+            'position' => 700,
+            'sort_order' => 700,
+            'visible' => true,
+            'note' => '',
+            'type' => 'int',
+            'input' => 'boolean',
+            'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+        ]);
+
+        $this->getEavConfig()
+            ->getAttribute('customer', 'custom_yes_no')
+            ->setData('is_user_defined', 1)
+            ->setData('is_required', 0)
+            ->setData('default_value', '')
+            ->setData('used_in_forms', ['adminhtml_customer', 'checkout_register', 'customer_account_create', 'customer_account_edit', 'adminhtml_checkout'])
+            ->save();
+
+        if (version_compare($context->getVersion(), '1.2.0', '<')) {
+			$data = [
+				'name'         => "Magento 2 Events",
+				'post_content' => "This article will talk about Events List in Magento 2. As you know, Magento 2 is using the events driven architecture which will help too much to extend the Magento functionality. We can understand this event as a kind of flag that rises when a specific situation happens. We will use an example module Mageplaza_HelloWorld to exercise this lesson.",
+				'url_key'      => '/magento-2-module-development/magento-2-events.html',
+				'tags'         => 'magento 2,mageplaza helloworld',
+				'status'       => 1
+			];
+			$post = $this->_postFactory->create();
+			$post->addData($data)->save();
+		}
+    }
+}

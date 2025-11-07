@@ -1,0 +1,57 @@
+<?php
+/** @var \MDOQ\SitePerformanceMonitoring\Block\Adminhtml\Index\Content $block */
+/** @var \Magento\Framework\View\TemplateEngine\Php $this */
+?>
+<script>
+    function reportForm(){
+        return {
+            options: JSON.parse('<?= json_encode($block->getOptionArray()); ?>'),
+            domain: '',
+            month: '',
+            url: '<?= $block->getUrl('performance_monitoring/index/report'); ?>',
+
+            init(){
+                console.log('Form initialized with options:', this.options);
+            },
+
+            viewReportClick(){
+                window.location.href = this.url + 'domain/' + this.domain + '/month/' + this.month;
+            }
+        }
+    }
+</script>
+
+<div x-data="reportForm()">
+    <div>
+        <label for="domain">Domain:</label>
+        <select id="domain" x-model="domain">
+            <option value="">Select Domain</option>
+            <template x-for="(value, key) in options" :key="key">
+                <option :value="key" x-text="key"></option>
+            </template>
+        </select>
+    </div>
+    <div x-show="domain">
+        <label for="month">Month:</label>
+        <select id="month" x-model="month">
+            <option value="">Select Month</option>
+            <template x-for="(value, key) in options[domain]" :key="key">
+                <option :value="value" x-text="value"></option>
+            </template>
+        </select>
+    </div>
+
+    <button x-show="domain && month" @click="viewReportClick">View Report</button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<script src="//unpkg.com/alpinejs" defer></script>

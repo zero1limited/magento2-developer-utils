@@ -1,0 +1,62 @@
+{
+    "name": "azjezz/psl",
+    "description": "PHP Standard Library",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "azjezz",
+            "email": "azjezz@protonmail.com"
+        }
+    ],
+    "require": {
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+        "ext-bcmath": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-sodium": "*",
+        "ext-intl": "*",
+        "revolt/event-loop": "^1.0.6"
+    },
+    "require-dev": {
+        "phpbench/phpbench": "^1.2.15",
+        "phpunit/phpunit": "^9.6.18",
+        "vimeo/psalm": "^6.0.0",
+        "php-standard-library/psalm-plugin": "^2.3.0",
+        "php-coveralls/php-coveralls": "^2.7.0",
+        "roave/infection-static-analysis-plugin": "^1.36.0",
+        "carthage-software/mago": "~0.13.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Psl\\": "src/Psl"
+        },
+        "files": [
+            "src/bootstrap.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Psl\\Tests\\Benchmark\\": "tests/benchmark",
+            "Psl\\Tests\\StaticAnalysis\\": "tests/static-analysis",
+            "Psl\\Tests\\Unit\\": "tests/unit",
+            "Psl\\Tests\\Fixture\\": "tests/fixture"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "carthage-software/mago": true
+        }
+    },
+    "extra": {
+        "thanks": {
+            "name": "hhvm/hsl",
+            "url": "https://github.com/hhvm/hsl"
+        }
+    },
+    "suggest": {
+        "php-standard-library/psalm-plugin": "Psalm integration",
+        "php-standard-library/phpstan-extension": "PHPStan integration"
+    }
+}

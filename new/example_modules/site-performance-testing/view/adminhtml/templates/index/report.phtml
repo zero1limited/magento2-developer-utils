@@ -1,0 +1,229 @@
+<?php
+/** @var \MDOQ\SitePerformanceMonitoring\Block\Adminhtml\Index\Report $block */
+/** @var \Magento\Framework\View\TemplateEngine\Php $this */
+?>
+
+<div>
+<a href="<?= $block->getBackUrl(); ?>">Back to Performance Monitoring</a>
+</div>
+<div>
+    <p>Domain: <?= htmlspecialchars($block->getDomain()); ?></p>
+    <p>Month: <?= htmlspecialchars($block->getMonth()); ?></p>
+</div>
+
+<div>
+    <div style="display: inline-block; width: 1500px; height: 400px;" id="cache_hit_rate_by_day">
+        Cache hit rate by day
+    </div>
+</div>
+
+<div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="request_time_splits">
+        request time splits
+    </div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="average_response_time">
+        average response time / number of requests
+    </div>
+</div>
+
+<div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="requests_breakdown">
+        Rquests breakdown
+    </div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="cached_vs_non_cached">
+        Cached vs Non-Cached
+    </div>
+</div>
+
+<div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="slowest_average_response_time">
+        <h3>10 Slowest Average Response Time</h3>
+        <table style="width: 400px; table-layout: fixed; word-break: break-word">
+            <thead>
+                <tr>
+                    <th style="width: 50px">Average Response Time (ms)</th>
+                    <th style="width: 50px">Count</th>
+                    <th style="width: 750px">Request</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($block->getSlowestAverageResponseTime() as $request): ?>
+                <tr>
+                    <td style="width: 50px"><?= htmlspecialchars($request['average_time']); ?></td>
+                    <td style="width: 50px"><?= htmlspecialchars($request['count']); ?></td>
+                    <td style="width: 750px"><?= htmlspecialchars($request['url']); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="slowest_requests">
+        <h3>10 Slowest Requests</h3>
+        <table>
+            <table style="width: 400px; table-layout: fixed; word-break: break-word">
+                <tr>
+                    <th style="width: 100px">Response Time (ms)</th>
+                    <th style="width: 750px">Request</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($block->getSlowestResponseTime() as $request): ?>
+                <tr>
+                    <td style="width: 100px"><?= htmlspecialchars($request['time']); ?></td>
+                    <td style="width: 750px"><?= htmlspecialchars($request['url']); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="query_params_used">
+        <h3>Query Parameters Used</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 50px">Count</th>
+                    <th style="width: 50px">Magento</th>
+                    <th style="width: 750px">Query</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($block->getUsedQueryParams() as $request): ?>
+                <tr>
+                    <td style="width: 50px"><?= htmlspecialchars($request['count']); ?></td>
+                    <td style="width: 50px"><?= $request['magento']? 'Y': 'N'; ?></td>
+                    <td style="width: 750px"><?= htmlspecialchars($request['query']); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <div style="display: inline-block; width: 850px; height: 400px;" id="ttt">
+    </div>
+</div>
+
+<div>
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart', 'line']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        // cache_hit_rate_by_day
+        // https://developers.google.com/chart/interactive/docs/gallery/areachart#stacked
+        var data = google.visualization.arrayToDataTable([
+          ['Day', 'Cached', 'Non-Cached',],
+          <?php foreach ($block->getCachedVsNonCachedByDay() as $day => $splits): ?>
+          ['<?= htmlspecialchars($day); ?>', <?= implode(',', $splits); ?>],
+          <?php endforeach; ?>
+        ]);
+
+        var options = {
+          title: 'Cached Vs Non-Cached By Day',
+          hAxis: {title: 'Day of month',  titleTextStyle: {color: '#333'}},
+          vAxis: {minValue: 0},
+          isStacked: true,
+          colors: ['#4CAF50', '#f81706'],
+        //   legend: { position: 'top', maxLines: 3 },
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('cache_hit_rate_by_day'));
+        chart.draw(data, options);
+
+        // request_time_splits
+        // https://developers.google.com/chart/interactive/docs/gallery/areachart#stacked
+        var data = google.visualization.arrayToDataTable([
+          ['Day', '<100ms', '<200ms', '<300ms', '<400ms', '<500ms', '<600ms', '<700ms', '<800ms', '<900ms', '>=900ms' ],
+          <?php foreach ($block->getRequestTimeSplits() as $day => $splits): ?>
+          ['<?= htmlspecialchars($day); ?>', <?= implode(',', $splits); ?>],
+          <?php endforeach; ?>
+        ]);
+
+        var options = {
+          title: 'Response Time Splits',
+          hAxis: {title: 'Day of month',  titleTextStyle: {color: '#333'}},
+          vAxis: {minValue: 0},
+          isStacked: true,
+          colors: ['#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722', '#F44336', '#f83a2c', '#f81706'],
+          legend: { position: 'top', maxLines: 3 },
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('request_time_splits'));
+        chart.draw(data, options);
+
+        // dual axis chart
+        // https://developers.google.com/chart/interactive/docs/gallery/linechart#material
+        var chartDiv = document.getElementById('average_response_time');
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Day');
+        data.addColumn('number', "Average Response Time (ms)");
+        data.addColumn('number', "Number of Requests");
+
+        data.addRows([
+          <?php foreach ($block->getResponseTimeVsRequestCount() as $day => $data): ?>
+          ['<?= htmlspecialchars($day); ?>', <?= implode(',', $data); ?>],
+          <?php endforeach; ?>
+            //[new Date(2014, 0),  -.5,  5.7],
+        ]);
+
+        var options = {
+            chart: {
+            title: 'Average Response Time vs Number of Requests',
+            },
+            series: {
+            // Gives each series an axis name that matches the Y-axis below.
+            0: {axis: 'response_time'},
+            1: {axis: 'count'}
+            },
+            axes: {
+            // Adds labels to each axis; they don't have to match the axis names.
+            y: {
+                response_time: {label: 'Average Response Time (ms)'},
+                count: {label: 'Request Count'}
+            }
+            }
+        };
+        var materialChart = new google.charts.Line(chartDiv);
+        materialChart.draw(data, options);
+
+        // requests_breakdown
+        // https://developers.google.com/chart/interactive/docs/gallery/piechart
+        var data = google.visualization.arrayToDataTable([
+          ['Part', 'Time'],
+          <?php foreach ($block->getRequestBreakdown() as $key => $value): ?>
+          ['<?= htmlspecialchars($key); ?>', <?= ''. $value; ?>],
+          <?php endforeach; ?>
+        ]);
+
+        var options = {
+          title: 'Requests Breakdown',
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('requests_breakdown'));
+
+        chart.draw(data, options);
+
+        // cached_vs_non_cached
+        // https://developers.google.com/chart/interactive/docs/gallery/piechart
+        var data = google.visualization.arrayToDataTable([
+          ['Type', 'Count'],
+          <?php foreach ($block->getCachedVsNonCached() as $key => $value): ?>
+          ['<?= htmlspecialchars($key); ?>', <?= ''. $value; ?>],
+          <?php endforeach; ?>
+        ]);
+
+        var options = {
+          title: 'Cached vs Non-Cached Requests',
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('cached_vs_non_cached'));
+
+        chart.draw(data, options);
+      }
+    </script>
+</div>

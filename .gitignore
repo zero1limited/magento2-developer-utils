@@ -1,2 +1,4 @@
 var/cache
 var/log
+auth.json
+composer.lock

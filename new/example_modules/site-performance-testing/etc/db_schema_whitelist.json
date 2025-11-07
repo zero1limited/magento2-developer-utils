@@ -1,0 +1,13 @@
+{
+    "mdoq_siteperformancemonitoring_site": {
+        "column": {
+            "id": true,
+            "name": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}
